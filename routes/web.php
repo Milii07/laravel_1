@@ -16,39 +16,76 @@ use \App\Models\Task;
 
 
 
-Route::get('/', function(){
-    return redirect()->route('tasks.index');
+Route::get('/', function () {
+  return redirect()->route('tasks.index');
 });
 
-Route::get('/', function(){
-    return view('index',['tasks'=>\App\Models\Task::all()]);
+Route::get('/', function () {
+  return view('index', ['tasks' => Task::all()]);
 })->name('tasks.index');
 
 Route::view('/tasks/create', 'create')
-->name('task.create');
+  ->name('task.create');
 
+Route::get('/tasks/{id}/edit', function ($id) {
 
-Route::get('/{id}', function($id) {
+  return view('edit', ['task' => Task::findOrFail($id)]);
+})->name('task.edit');
 
-    return view('show',['task'=>Task::findOrFail($id)]);
-})->name('tasks.show');
+Route::get('/tasks/{id}', function ($id) {
 
-Route::post('/task', function(Request $request){
-    dd($request->all());
+  return view('show', ['task' => Task::findOrFail($id)]);
+})->name('task.show');
+
+Route::post('/task', function (Request $request) {
+  $data = $request->validate([
+    'title' => 'required|max:250',
+    'description' => 'required',
+    'long_description' => 'required'
+  ]);
+
+  $task = new Task;
+  $task->title = $data['title'];
+  $task->description = $data['description'];
+  $task->long_description = $data['long_description'];
+
+  $task->save();
+
+  return redirect()->route('task.show', ['id' => $task->id])
+    ->with('success', 'Task create successfully!');
 })->name('task.store');
+
+
+Route::put('/task/{id}', function ($id, Request $request) {
+  $data = $request->validate([
+    'title' => 'required|max:250',
+    'description' => 'required',
+    'long_description' => 'required'
+  ]);
+
+  $task = Task::findOrFail($id);
+  $task->title = $data['title'];
+  $task->description = $data['description'];
+  $task->long_description = $data['long_description'];
+
+  $task->save();
+
+  return redirect()->route('task.show', ['id' => $task->id])
+    ->with('success', 'Task update successfully!');
+})->name('task.update');
 
 
 
 //Route::get('/hello',function(){
-  //  return 'Hello';
+//  return 'Hello';
 //});
 //Route::get('/hll',function(){
-  //  return redirect('/hello');
+//  return redirect('/hello');
 //});
 //Route::get('/greet/{name}', function($name){
-  //  return $name;
+//  return $name;
 //});
-Route::fallback(function(){
-    return "me nxirr me nje faqe";
+Route::fallback(function () {
+  return "me nxirr me nje faqe";
 });
 
