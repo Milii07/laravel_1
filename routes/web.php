@@ -17,6 +17,7 @@ use \App\Models\Task;
 
 
 
+//comment test
 Route::get('/', function () {
   return redirect()->route('tasks.index');
 });
